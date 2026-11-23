@@ -110,7 +110,10 @@ if uploaded_file is not None:
         result = df[display_cols].copy()
         result['Prediction'] = mm.predict_proba(X)[:, 1]
         result['Label'] = df[label_column] if label_column in df.columns else None
-        st.session_state['data'] = pd.concat([st.session_state['data'], result], ignore_index=True)
+        # 页面每次刷新都会重新执行到这里，同一个文件只追加一次结果
+        if st.session_state.get('processed_file_id') != uploaded_file.file_id:
+            st.session_state['data'] = pd.concat([st.session_state['data'], result], ignore_index=True)
+            st.session_state['processed_file_id'] = uploaded_file.file_id
 
 st.write(st.session_state['data'])
 
